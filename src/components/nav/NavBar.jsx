@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, IconButton, Button, Box, Stack } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Button, Stack } from '@mui/material';
 import { DataUsage, Add, ExitToApp } from '@mui/icons-material';
 import { connect } from 'react-redux';
 import { setUser } from '../../redux/actions';

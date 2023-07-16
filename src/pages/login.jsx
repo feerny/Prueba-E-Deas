@@ -50,6 +50,8 @@ function Login(props) {
 
     if (username.trim() === '' || password.trim() === '') {
       setErrorMessage('Por favor, completa todos los campos');
+      setIsUsernameValid(username.trim() !== '');
+      setIsPasswordValid(password.trim() !== '');
       return;
     } else {
       if (username === process.env.REACT_APP_ADMIN) {
@@ -118,6 +120,9 @@ function Login(props) {
               ),
             }}
             error={!isUsernameValid}
+            sx={{
+              ...(isUsernameValid ? {} : { '& .MuiOutlinedInput-root': { backgroundColor: '#fff8e1' } }),
+            }}
           />
           <TextField
             required
@@ -143,6 +148,9 @@ function Login(props) {
               ),
             }}
             error={!isPasswordValid}
+            sx={{
+              ...(isPasswordValid ? {} : { '& .MuiOutlinedInput-root': { backgroundColor: '#fff8e1' } }),
+            }}
           />
           <FormControlLabel
             control={
