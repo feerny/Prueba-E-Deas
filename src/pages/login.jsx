@@ -10,9 +10,11 @@ import {
   IconButton,
   InputAdornment,
   Alert,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import { AccountCircle, Visibility, Lock, VisibilityOff } from '@mui/icons-material';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 function Login(props) {
   const navigate = useNavigate();
@@ -20,21 +22,30 @@ function Login(props) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [rememberSession, setRememberSession] = useState(false);
+  const [isUsernameValid, setIsUsernameValid] = useState(true);
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
 
   const handleUsernameChange = (event) => {
     const value = event.target.value.replace(/[^a-zA-Z0-9]/g, '');
     setUsername(value);
+    setIsUsernameValid(true);
   };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
+    setIsPasswordValid(true);
   };
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = (event) => {
+  const handleRememberSessionChange = (event) => {
+    setRememberSession(event.target.checked);
+  };
+
+  const handleLogin = async (event) => {
     event.preventDefault();
 
     if (username.trim() === '' || password.trim() === '') {
@@ -43,28 +54,35 @@ function Login(props) {
     } else {
       if (username === process.env.REACT_APP_ADMIN) {
         if (password === process.env.REACT_APP_ADMIN_PASSWORD) {
-          props.setUser("!$%&/fdsfsdfds3132%&%&$.");
-          localStorage.setItem("keyUser", "!$%&/fdsfsdfds3132%&%&$.");
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
-          setErrorMessage("");
+          await props.setUser('!$%&/fdsfsdfds3132%&%&$.');
+          if (rememberSession) {
+            localStorage.setItem('keyUser', '!$%&/fdsfsdfds3132%&%&$.');
+          } else {
+            sessionStorage.setItem('keyUser', '!$%&/fdsfsdfds3132%&%&$.');
+          }
+          navigate('/home');
+          setErrorMessage('');
         } else {
-          setErrorMessage("Contraseña Inválida");
+          setIsPasswordValid(false);
+          setErrorMessage('Contraseña Inválida');
         }
       } else if (username === process.env.REACT_APP_USER) {
         if (password === process.env.REACT_APP_USER_PASSWORD) {
-          props.setUser("!·$dfdsfdsfds1334");
-          localStorage.setItem("keyUser", "!·$dfdsfdsfds1334");
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
-          setErrorMessage("");
+          await props.setUser('!·$dfdsfdsfds1334');
+          if (rememberSession) {
+            localStorage.setItem('keyUser', '!·$dfdsfdsfds1334');
+          } else {
+            sessionStorage.setItem('keyUser', '!·$dfdsfdsfds1334');
+          }
+          navigate('/home');
+          setErrorMessage('');
         } else {
-          setErrorMessage("Contraseña Inválida");
+          setIsPasswordValid(false);
+          setErrorMessage('Contraseña Inválida');
         }
       } else {
-        setErrorMessage("Usuario Inválido");
+        setIsUsernameValid(false);
+        setErrorMessage('Usuario Inválido');
       }
     }
   };
@@ -99,6 +117,7 @@ function Login(props) {
                 </InputAdornment>
               ),
             }}
+            error={!isUsernameValid}
           />
           <TextField
             required
@@ -123,14 +142,15 @@ function Login(props) {
                 </InputAdornment>
               ),
             }}
+            error={!isPasswordValid}
           />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3, mb: 2 }}
-          >
+          <FormControlLabel
+            control={
+              <Checkbox checked={rememberSession} onChange={handleRememberSessionChange} color="primary" />
+            }
+            label="Recordar sesión"
+          />
+          <Button type="submit" fullWidth variant="contained" color="primary" sx={{ mt: 3, mb: 2 }}>
             Entrar
           </Button>
         </Box>
@@ -150,5 +170,3 @@ const mapDispatchToProps = {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
-
-

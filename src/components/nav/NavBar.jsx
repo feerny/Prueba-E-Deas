@@ -2,19 +2,19 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, IconButton, Button, Box, Stack } from '@mui/material';
 import { DataUsage, Add, ExitToApp } from '@mui/icons-material';
+import { connect } from 'react-redux';
+import { setUser } from '../../redux/actions';
 
-function NavBar() {
+function NavBar(props) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.clear();
     sessionStorage.clear();
-    setTimeout(() => {
-        navigate('/login');
-      }, 1000);
-
-    
+    await props.setUser("notUser");
+    navigate('/login');
   };
+  
 
   return (
     <AppBar position="static">
@@ -39,5 +39,9 @@ function NavBar() {
     </AppBar>
   );
 }
+const mapDispatchToProps = {
+  setUser,
+};
 
-export default NavBar;
+export default connect(null,mapDispatchToProps)(NavBar);
+
