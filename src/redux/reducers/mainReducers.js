@@ -5,7 +5,7 @@ import {  SET_DATA_LIST } from '../actions';
 
 //estado global
 const initialState = {
-  user:"notUser",
+  user:localStorage.getItem("keyUser") || "notUser",
   dataList: JSON.parse(localStorage.getItem('data')) ,
   rangeValue: [0, 11],
 };

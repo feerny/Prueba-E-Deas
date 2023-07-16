@@ -8,7 +8,7 @@ import store from './redux/store.js';
 //funcion que genera el footer para el Copyright
 function Copyright(props) {
   return (
-    <Typography sx={{padding:"10px"}} variant="body2" color="text.secondary" align="center" {...props}>
+    <Typography sx={{padding:"40px"}} variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" target='__blank' href="https://github.com/feerny">
         Felipe Ferrer

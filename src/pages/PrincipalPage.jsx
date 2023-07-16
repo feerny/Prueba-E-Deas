@@ -1,7 +1,10 @@
 import React from 'react'
+import NavBar from '../components/nav/NavBar'
 
 export default function PrincipalPage() {
   return (
-    <div>PrincipalPage</div>
+    <div>
+        <NavBar />
+    </div>
   )
 }
