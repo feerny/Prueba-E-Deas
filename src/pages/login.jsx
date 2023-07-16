@@ -56,11 +56,11 @@ function Login(props) {
     } else {
       if (username === process.env.REACT_APP_ADMIN) {
         if (password === process.env.REACT_APP_ADMIN_PASSWORD) {
-          await props.setUser('!$%&/fdsfsdfds3132%&%&$.');
+          await props.setUser(`${process.env.REACT_APP_ADMIN_TOKEN}`);
           if (rememberSession) {
-            localStorage.setItem('keyUser', '!$%&/fdsfsdfds3132%&%&$.');
+            localStorage.setItem('keyUser', `${process.env.REACT_APP_ADMIN_TOKEN}`);
           } else {
-            sessionStorage.setItem('keyUser', '!$%&/fdsfsdfds3132%&%&$.');
+            sessionStorage.setItem('keyUser', `${process.env.REACT_APP_ADMIN_TOKEN}`);
           }
           navigate('/home');
           setErrorMessage('');
