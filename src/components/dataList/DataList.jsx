@@ -15,26 +15,34 @@ import {
   DialogActions,
   Button,
   useTheme,
+  Alert,
+  AlertTitle,
 } from '@mui/material';
 import { Edit, Save, Delete, Close } from '@mui/icons-material';
 import { setDataList } from '../../redux/actions';
 
 function DataList({ dataList, setDataList, user, dataFilter }) {
+  //defino estados del componente
   const [editingRowId, setEditingRowId] = useState(null);
   const [editedDataList, setEditedDataList] = useState(dataList);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingRowId, setDeletingRowId] = useState(null);
   const [reloadComponent, setReloadComponent] = useState(false);
   const [filteredDataList, setFilteredDataList] = useState([]);
+  const [cedulaExist, setCedulaExist] = useState(false);
 
+  //al recargar el componete o cambiar los datos del estado global de datalist actualiza el estado del componente
   useEffect(() => {
     setEditedDataList(dataList);
   }, [dataList, reloadComponent]);
 
+  //funcion que se ejecuta solo si cambia el filtro del buscador
   useEffect(() => {
+    //si esta vacio envia los datos del estado del componente
     if (dataFilter === '') {
       setFilteredDataList(editedDataList);
     } else {
+      //si hay datos en el filtro filtra lo que se busque y lo envia al estado del componente
       const filteredList = editedDataList.filter((data) => {
         const { cedula, nombre, apellido, profesion } = data;
         const filterValue = dataFilter.toLowerCase();
@@ -49,23 +57,39 @@ function DataList({ dataList, setDataList, user, dataFilter }) {
     }
   }, [dataFilter, editedDataList]);
 
+  //funcion para obtener el id que se esta editando
   const handleEdit = (rowId) => {
     setEditingRowId(rowId);
   };
 
+  //funcion para guardar los datos editados
   const handleSave = () => {
+    //valida que el id de la fila exista y trae todos sus datos
     const editedRow = editedDataList.find((row) => row.id === editingRowId);
+    //si existe y no hay datos vacios envia los nuevos datos al estado global de la pagina
     if (editedRow && !Object.values(editedRow).some((value) => value === '')) {
-      setDataList(editedDataList);
-      setEditingRowId(null);
+      // Verificar si la cédula ya existe en otro registro
+      const existingData = editedDataList.find((row) => row.id !== editingRowId && row.cedula === editedRow.cedula);
+      if (existingData) {
+        // Mostrar mensaje de cédula duplicada y no guardar los datos
+        setCedulaExist(true);
+      } else {
+        // Guardar los datos editados
+        setDataList(editedDataList);
+        setEditingRowId(null);
+        setCedulaExist(false);
+      }
     }
   };
 
+  //funcion para cancelar la edicion
   const handleCancel = () => {
     setEditingRowId(null);
     setEditedDataList(dataList);
+    setCedulaExist(false);
   };
 
+  //funcion para controlar la edicion
   const handleInputChange = (event, field, rowId) => {
     const value = event.target.value;
     setEditedDataList((prevDataList) =>
@@ -79,20 +103,26 @@ function DataList({ dataList, setDataList, user, dataFilter }) {
         return row;
       })
     );
+    setCedulaExist(false);
   };
 
+  //funcion para obtener el id de la fila que se quiere eliminar y abrir alerta de confirmacion
   const handleDelete = (rowId) => {
     setDeletingRowId(rowId);
     setDeleteDialogOpen(true);
   };
 
+  //funcion para eliminar fila del listado
   const handleConfirmDelete = () => {
+    //filtra todo menos lo que se quiere eliminar
     const updatedDataList = editedDataList.filter((row) => row.id !== deletingRowId);
+    //envia nuevos datos al estado global de la pagina
     setDataList(updatedDataList);
     setDeleteDialogOpen(false);
     setReloadComponent(!reloadComponent);
   };
 
+  //funcion para cancelar la eliminacion y cerrar alerta
   const handleCancelDelete = () => {
     setDeletingRowId(null);
     setDeleteDialogOpen(false);
@@ -110,22 +140,15 @@ function DataList({ dataList, setDataList, user, dataFilter }) {
           No se encontraron datos que coincidan con el filtro
         </Typography>
       ) : (
-        <TableContainer  style={{ maxHeight: 'calc(100vh - 240px)', overflow: 'auto' }}>
+        <TableContainer style={{ maxHeight: 'calc(100vh - 240px)', overflow: 'auto' }}>
           <Table>
             <TableHead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
               <TableRow style={{ backgroundColor: theme.palette.secondary.main }}>
-                <TableCell align="center" >
-                  Cédula
-                </TableCell>
-                <TableCell align="center" >
-                  Nombre
-                </TableCell>
-                <TableCell align="center" >
-                  Apellido
-                </TableCell>
-                <TableCell align="center" >
-                  Profesión
-                </TableCell>
+                <TableCell align="center">Cédula</TableCell>
+                <TableCell align="center">Nombre</TableCell>
+                <TableCell align="center">Apellido</TableCell>
+                <TableCell align="center">Profesión</TableCell>
+                {/* si el usuario es admin muestra esta columna de resto no */}
                 {user === process.env.REACT_APP_ADMIN_TOKEN ? (
                   <TableCell align="center" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                     Acciones
@@ -138,11 +161,19 @@ function DataList({ dataList, setDataList, user, dataFilter }) {
                 <TableRow key={data.id}>
                   <TableCell align="center">
                     {editingRowId === data.id ? (
-                      <input
-                        type="text"
-                        value={data.cedula}
-                        onChange={(event) => handleInputChange(event, 'cedula', data.id)}
-                      />
+                      <>
+                        <input
+                          type="text"
+                          value={data.cedula}
+                          onChange={(event) => handleInputChange(event, 'cedula', data.id)}
+                        />
+                        {cedulaExist && (
+                          <Alert severity="error" sx={{ mt: 1 }}>
+                            <AlertTitle>Error</AlertTitle>
+                            La cédula ya existe. Por favor, ingrese una cédula válida.
+                          </Alert>
+                        )}
+                      </>
                     ) : (
                       data.cedula
                     )}
@@ -180,7 +211,7 @@ function DataList({ dataList, setDataList, user, dataFilter }) {
                       data.profesion
                     )}
                   </TableCell>
-
+                  {/* si el usuario es admin muestra las acciones de resto no */}
                   {user === process.env.REACT_APP_ADMIN_TOKEN ? (
                     <TableCell align="center">
                       {editingRowId === data.id ? (
@@ -226,6 +257,7 @@ function DataList({ dataList, setDataList, user, dataFilter }) {
   );
 }
 
+//lista las props a usar del estado global
 const mapStateToProps = (state) => {
   return {
     dataList: state.dataList,
@@ -234,8 +266,11 @@ const mapStateToProps = (state) => {
   };
 };
 
+//lista las acction a usar
 const mapDispatchToProps = {
   setDataList,
 };
 
+//despacho el componente
 export default connect(mapStateToProps, mapDispatchToProps)(DataList);
+

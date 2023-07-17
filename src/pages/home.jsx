@@ -5,13 +5,17 @@ import PrincipalPage from "./PrincipalPage";
 import { connect } from 'react-redux';
 
 function Home(props) {
+  //toma el estado de user del estado global
     var typeUser = props.user;
     return (
       <div>
         <Router>
           <Routes>
+            {/* si el path esta vaco redirecciona a home */}
             <Route exact path="/" element={<Navigate to="/home" />} />
+            {/* si no se ha logeado no lo deja entrar a la vista home y redirecciona a login */}
             <Route exact path="/home" element={typeUser === "notUser" ? <Navigate to="/login" replace={true} />:<PrincipalPage />} />
+            {/* si ya esta logeado y quiere entrar a login lo redirecciona a home */}
             <Route
               exact
               path="/login"

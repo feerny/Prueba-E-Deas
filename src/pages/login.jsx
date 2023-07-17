@@ -17,7 +17,9 @@ import { AccountCircle, Visibility, Lock, VisibilityOff } from '@mui/icons-mater
 import { useNavigate } from 'react-router-dom';
 
 function Login(props) {
+  //defino navigate
   const navigate = useNavigate();
+  //estados del componente
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,34 +28,37 @@ function Login(props) {
   const [isUsernameValid, setIsUsernameValid] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
 
+  //funcion par controlar el estado del input de usuario
   const handleUsernameChange = (event) => {
     const value = event.target.value.replace(/[^a-zA-Z0-9]/g, '');
     setUsername(value);
     setIsUsernameValid(true);
   };
-
+  //funcion par controlar el estado del input de password
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
     setIsPasswordValid(true);
   };
-
+  //funcion par controlar el estado de la visibilidad de la contraseña
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
+  //funcion par controlar el estado de la sesion
   const handleRememberSessionChange = (event) => {
     setRememberSession(event.target.checked);
   };
 
+  //funcion que se dispara al dar click en el boton de entrar
   const handleLogin = async (event) => {
     event.preventDefault();
-
+    //valida que los campos esten llenos
     if (username.trim() === '' || password.trim() === '') {
       setErrorMessage('Por favor, completa todos los campos');
       setIsUsernameValid(username.trim() !== '');
       setIsPasswordValid(password.trim() !== '');
       return;
     } else {
+      //valida que tipo de usuario es y envia un token dependiendo de cual es 
       if (username === process.env.REACT_APP_ADMIN) {
         if (password === process.env.REACT_APP_ADMIN_PASSWORD) {
           await props.setUser(`${process.env.REACT_APP_ADMIN_TOKEN}`);
@@ -70,11 +75,11 @@ function Login(props) {
         }
       } else if (username === process.env.REACT_APP_USER) {
         if (password === process.env.REACT_APP_USER_PASSWORD) {
-          await props.setUser('!·$dfdsfdsfds1334');
+          await props.setUser(`${process.env.REACT_APP_USER_TOKEN}`);
           if (rememberSession) {
-            localStorage.setItem('keyUser', '!·$dfdsfdsfds1334');
+            localStorage.setItem('keyUser', `${process.env.REACT_APP_USER_TOKEN}`);
           } else {
-            sessionStorage.setItem('keyUser', '!·$dfdsfdsfds1334');
+            sessionStorage.setItem('keyUser', `${process.env.REACT_APP_USER_TOKEN}`);
           }
           navigate('/home');
           setErrorMessage('');
@@ -166,15 +171,16 @@ function Login(props) {
     </Container>
   );
 }
-
+//props del estado global
 const mapStateToProps = (state) => {
   return {
     user: state.user,
   };
 };
-
+//acciones disponibles
 const mapDispatchToProps = {
   setUser,
 };
 
+//despacha el componente
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

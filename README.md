@@ -1,3 +1,18 @@
+# Importante
+inatalar todas las dependencias con:
+### `npm install`
+este aplicativo tiene dos tipos de usuarios admin y user, admin puede tener acceso al crud completo y user solo puede visualizar datos
+## user: user123
+## password user: userpassword
+---------------------------------
+## admin: admin123
+## password admin: adminpassword
+
+estas son las credenciales de cada usuario, agregue un filtro para buscar cualquier dato y se filtrara.
+el check de recordar sesion es funcional
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
