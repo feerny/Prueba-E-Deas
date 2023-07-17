@@ -1,19 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from '@mui/material';
 import { Edit, Save, Delete, Close } from '@mui/icons-material';
 import { setDataList } from '../../redux/actions';
 
-function DataList({ dataList, setDataList, user }) {
+function DataList({ dataList, setDataList, user, dataFilter }) {
   const [editingRowId, setEditingRowId] = useState(null);
   const [editedDataList, setEditedDataList] = useState(dataList);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingRowId, setDeletingRowId] = useState(null);
   const [reloadComponent, setReloadComponent] = useState(false);
+  const [filteredDataList, setFilteredDataList] = useState([]);
 
   useEffect(() => {
     setEditedDataList(dataList);
   }, [dataList, reloadComponent]);
+
+  useEffect(() => {
+    if (dataFilter === '') {
+      setFilteredDataList(editedDataList);
+    } else {
+      const filteredList = editedDataList.filter((data) => {
+        const { cedula, nombre, apellido, profesion } = data;
+        const filterValue = dataFilter.toLowerCase();
+        return (
+          cedula.toLowerCase().includes(filterValue) ||
+          nombre.toLowerCase().includes(filterValue) ||
+          apellido.toLowerCase().includes(filterValue) ||
+          profesion.toLowerCase().includes(filterValue)
+        );
+      });
+      setFilteredDataList(filteredList);
+    }
+  }, [dataFilter, editedDataList]);
 
   const handleEdit = (rowId) => {
     setEditingRowId(rowId);
@@ -69,24 +102,36 @@ function DataList({ dataList, setDataList, user }) {
       <Typography variant="h4" align="center" gutterBottom>
         Lista de Datos
       </Typography>
-      {editedDataList.length === 0 ? (
+      {filteredDataList.length === 0 ? (
         <Typography variant="body1" align="center">
-          Sin registros
+          No se encontraron datos que coincidan con el filtro
         </Typography>
       ) : (
-        <TableContainer component={Paper}>
+        <TableContainer  style={{ maxHeight: 'calc(100vh - 240px)', overflow: 'auto' }}>
           <Table>
-            <TableHead>
+            <TableHead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
               <TableRow style={{ backgroundColor: '#e3f2fd' }}>
-                <TableCell align="center">Cédula</TableCell>
-                <TableCell align="center">Nombre</TableCell>
-                <TableCell align="center">Apellido</TableCell>
-                <TableCell align="center">Profesión</TableCell>
-                {user===process.env.REACT_APP_ADMIN_TOKEN?<TableCell align="center">Acciones</TableCell>:null}
+                <TableCell align="center" >
+                  Cédula
+                </TableCell>
+                <TableCell align="center" >
+                  Nombre
+                </TableCell>
+                <TableCell align="center" >
+                  Apellido
+                </TableCell>
+                <TableCell align="center" >
+                  Profesión
+                </TableCell>
+                {user === process.env.REACT_APP_ADMIN_TOKEN ? (
+                  <TableCell align="center" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+                    Acciones
+                  </TableCell>
+                ) : null}
               </TableRow>
             </TableHead>
             <TableBody>
-              {editedDataList.map((data) => (
+              {filteredDataList.map((data) => (
                 <TableRow key={data.id}>
                   <TableCell align="center">
                     {editingRowId === data.id ? (
@@ -133,29 +178,29 @@ function DataList({ dataList, setDataList, user }) {
                     )}
                   </TableCell>
 
-                  {user===process.env.REACT_APP_ADMIN_TOKEN?<TableCell align="center">
-                    {editingRowId === data.id ? (
-                      <>
-                        <IconButton aria-label="Guardar" onClick={handleSave} disabled={Object.values(data).some((value) => value === '')}>
-                          <Save />
-                        </IconButton>
-                        <IconButton aria-label="Cancelar" onClick={handleCancel}>
-                          <Close />
-                        </IconButton>
-                      </>
-                    ) : (
-                      <>
-                        <IconButton aria-label="Editar" onClick={() => handleEdit(data.id)}>
-                          <Edit />
-                        </IconButton>
-                        <IconButton aria-label="Eliminar" onClick={() => handleDelete(data.id)}>
-                          <Delete />
-                        </IconButton>
-                      </>
-                    )}
-                  </TableCell>:null}
-
-
+                  {user === process.env.REACT_APP_ADMIN_TOKEN ? (
+                    <TableCell align="center">
+                      {editingRowId === data.id ? (
+                        <>
+                          <IconButton aria-label="Guardar" onClick={handleSave} disabled={Object.values(data).some((value) => value === '')}>
+                            <Save />
+                          </IconButton>
+                          <IconButton aria-label="Cancelar" onClick={handleCancel}>
+                            <Close />
+                          </IconButton>
+                        </>
+                      ) : (
+                        <>
+                          <IconButton aria-label="Editar" onClick={() => handleEdit(data.id)}>
+                            <Edit />
+                          </IconButton>
+                          <IconButton aria-label="Eliminar" onClick={() => handleDelete(data.id)}>
+                            <Delete />
+                          </IconButton>
+                        </>
+                      )}
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))}
             </TableBody>
@@ -181,7 +226,8 @@ function DataList({ dataList, setDataList, user }) {
 const mapStateToProps = (state) => {
   return {
     dataList: state.dataList,
-    user:state.user
+    user: state.user,
+    dataFilter: state.dataFilter,
   };
 };
 

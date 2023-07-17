@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, IconButton, Button, Stack, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
-import { DataUsage, Add, ExitToApp } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, useMediaQuery, useTheme } from '@mui/material';
+import { DataUsage, Add, ExitToApp, Search, Clear } from '@mui/icons-material';
 import { connect } from 'react-redux';
-import { setUser, setDataList } from '../../redux/actions';
+import { setUser, setDataList, setDataFilter } from '../../redux/actions';
 
-function NavBar({ setUser, setDataList, dataList, user }) {
+function NavBar({ setUser, setDataList, dataList, user, dataFilter, setDataFilter }) {
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [newData, setNewData] = useState({
@@ -24,11 +24,13 @@ function NavBar({ setUser, setDataList, dataList, user }) {
   };
 
   const handleLogout = async () => {
-    localStorage.clear();
-    sessionStorage.clear();
+    localStorage.removeItem("keyUser");
+    sessionStorage.removeItem("keyUser");
     await setUser("notUser");
-    navigate('/login');
+    await navigate('/login');
+    window.location.reload();
   };
+  
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -59,7 +61,7 @@ function NavBar({ setUser, setDataList, dataList, user }) {
     if (Object.values(newData).every((value) => value.trim() !== '')) {
       // Generar ID aleatorio
       const id = generateRandomId();
-      
+
       // Agregar los nuevos datos al estado global
       const newDataWithId = { ...newData, id };
       const updatedDataList = [...dataList, newDataWithId];
@@ -68,26 +70,52 @@ function NavBar({ setUser, setDataList, dataList, user }) {
     }
   };
 
+  const theme = useTheme();
+  const isMobileResolution = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <>
       <AppBar position="static">
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Typography variant="h6" component="div">
-            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
               <IconButton color="inherit">
                 <DataUsage />
               </IconButton>
-              Data List
+              <span>Data List</span>
             </Link>
           </Typography>
-          <Stack direction="row" spacing={9}>
-            {user===process.env.REACT_APP_ADMIN_TOKEN?<Button color="inherit" onClick={handleOpenModal} startIcon={<Add />}>
+
+          {isMobileResolution ? null : (
+            <TextField
+              value={dataFilter}
+              onChange={(e) => setDataFilter(e.target.value)}
+              id="search"
+              variant="standard"
+              margin="dense"
+              InputProps={{
+                startAdornment: <Search />,
+                endAdornment: (
+                  <IconButton onClick={()=>setDataFilter("")} edge="end" color="inherit">
+                    <Clear />
+                  </IconButton>
+                ),
+                sx: {
+                  color: '#ffffff',
+                  borderBottom: '1px solid #ffffff',
+                },
+              }}
+              sx={{ width: '400px' }}
+            />
+          )}
+          {user === process.env.REACT_APP_ADMIN_TOKEN && (
+            <Button color="inherit" onClick={handleOpenModal} startIcon={<Add />}>
               Agregar datos
-            </Button>:null}
-            <Button color="inherit" onClick={handleLogout} startIcon={<ExitToApp />}>
-              Cerrar sesión
             </Button>
-          </Stack>
+          )}
+          <Button color="inherit" onClick={handleLogout} startIcon={<ExitToApp />}>
+            Cerrar sesión
+          </Button>
         </Toolbar>
       </AppBar>
 
@@ -142,16 +170,19 @@ function NavBar({ setUser, setDataList, dataList, user }) {
     </>
   );
 }
+
 const mapStateToProps = (state) => {
   return {
     dataList: state.dataList,
-    user:state.user
+    user: state.user,
+    dataFilter:state.dataFilter
   };
 };
 
 const mapDispatchToProps = {
   setUser,
   setDataList,
+  setDataFilter
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NavBar);
