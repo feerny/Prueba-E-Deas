@@ -11,6 +11,8 @@ este aplicativo tiene dos tipos de usuarios admin y user, admin puede tener acce
 estas son las credenciales de cada usuario, agregue un filtro para buscar cualquier dato y se filtrara.
 el check de recordar sesion es funcional
 
+## [link de la pagina](https://prueba-e-deas.vercel.app/login)
+
 
 
 # Getting Started with Create React App
