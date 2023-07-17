@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  useTheme,
 } from '@mui/material';
 import { Edit, Save, Delete, Close } from '@mui/icons-material';
 import { setDataList } from '../../redux/actions';
@@ -97,6 +98,8 @@ function DataList({ dataList, setDataList, user, dataFilter }) {
     setDeleteDialogOpen(false);
   };
 
+  const theme = useTheme(); // Obtener el tema actual
+
   return (
     <div style={{ paddingTop: '20px' }}>
       <Typography variant="h4" align="center" gutterBottom>
@@ -110,7 +113,7 @@ function DataList({ dataList, setDataList, user, dataFilter }) {
         <TableContainer  style={{ maxHeight: 'calc(100vh - 240px)', overflow: 'auto' }}>
           <Table>
             <TableHead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-              <TableRow style={{ backgroundColor: '#e3f2fd' }}>
+              <TableRow style={{ backgroundColor: theme.palette.secondary.main }}>
                 <TableCell align="center" >
                   Cédula
                 </TableCell>
